@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkibiVote — Testimonials</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23ffffff' d='M8 14s-6-4.5-6-8a4 4 0 0 1 6-3.46A4 4 0 0 1 14 6c0 3.5-6 8-6 8z'/%3E%3C/svg%3E") 8 14, auto !important;}
+button,a,[onclick]{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23ffff00' d='M8 14s-6-4.5-6-8a4 4 0 0 1 6-3.46A4 4 0 0 1 14 6c0 3.5-6 8-6 8z'/%3E%3C/svg%3E") 8 14, pointer !important;}
+:root{
+  --black:#000000;--ink:#0a0a0a;--dark:#111111;--mid:#1a1a1a;--rule:#333;--muted:#888;--subtle:#666;--silver:#aaa;--off:#e0e0e0;--white:#ffffff;
+  --ut-yellow:#ffff00;--ut-cyan:#00ffff;--ut-red:#ff0000;--ut-heart:#ff4444;--ut-green:#00ff00;--ut-blue:#6060ff;
+  --font-main:'VT323',monospace;--font-pixel:'Press Start 2P',monospace;--font-mono:'Courier Prime',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;border-radius:0!important;}
+html,body{height:100%;font-family:var(--font-main);background:var(--black);color:var(--white);font-size:20px;image-rendering:pixelated;overflow:hidden;}
+button{cursor:pointer;font-family:var(--font-main);}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.15) 2px,rgba(0,0,0,.15) 4px);pointer-events:none;z-index:9999;}
+::-webkit-scrollbar{width:6px!important;background:#000!important;}::-webkit-scrollbar-thumb{background:#fff!important;}
+@keyframes blink{0%,100%{opacity:1}49%{opacity:1}50%,99%{opacity:0}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes heartbeat{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+@keyframes toast-in{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+@keyframes glitch{0%,100%{text-shadow:2px 0 var(--ut-cyan),-2px 0 var(--ut-red)}33%{text-shadow:-2px 0 var(--ut-cyan),2px 0 var(--ut-red)}66%{text-shadow:0 0 transparent}}
+
+/* ── SIDEBAR ── */
+.sb{width:220px;background:var(--ink);border-right:3px solid #fff;display:flex;flex-direction:column;flex-shrink:0;height:100vh;}
+.sb-logo{padding:20px 18px 16px;border-bottom:3px solid #fff;display:flex;align-items:center;gap:10px;}
+.sb-li{width:34px;height:34px;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.sb-ln{font-family:var(--font-pixel);font-size:11px;color:var(--ut-yellow);text-shadow:2px 2px 0 rgba(255,255,0,.25);}
+.sb-user{padding:13px 16px;border-bottom:3px solid #fff;display:flex;align-items:center;gap:10px;}
+.sb-av{width:32px;height:32px;border:3px solid var(--ut-yellow);display:flex;align-items:center;justify-content:center;font-family:var(--font-pixel);font-size:9px;color:var(--ut-cyan);background:var(--mid);}
+.sb-un{font-size:17px;}.sb-ur{font-size:14px;color:var(--ut-cyan);}
+.sb-nav{flex:1;padding:12px 0;overflow-y:auto;}
+.sb-sec{font-family:var(--font-pixel);font-size:9px;color:var(--muted);padding:10px 16px 4px;letter-spacing:.3px;}
+.sb-it{display:flex;align-items:center;gap:11px;padding:10px 16px;font-size:19px;color:#fff;text-decoration:none;transition:all .15s;border-left:3px solid transparent;}
+.sb-it:hover{background:rgba(255,255,255,.05);border-left-color:#fff;}
+.sb-it.active{background:rgba(255,255,0,.08);border-left-color:var(--ut-yellow);color:var(--ut-yellow);}
+.sb-it-ico{width:18px;text-align:center;font-size:15px;}
+.sb-foot{padding:13px 16px;border-top:3px solid #fff;}
+.sb-badge{font-family:var(--font-pixel);font-size:9px;padding:2px 6px;border:2px solid var(--ut-yellow);color:var(--ut-yellow);margin-left:auto;}
+.sb-logout{display:flex;align-items:center;gap:9px;font-size:17px;color:var(--muted);cursor:pointer;transition:color .15s;}
+.sb-logout:hover{color:#fff;}
+
+/* ── LAYOUT ── */
+.page{display:flex;width:100vw;height:100vh;overflow:hidden;}
+.main-area{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden;}
+.topbar{height:54px;border-bottom:3px solid #fff;display:flex;align-items:center;justify-content:space-between;padding:0 22px;flex-shrink:0;}
+.topbar-title{font-family:var(--font-pixel);font-size:11px;color:var(--ut-yellow);}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+.icobtn{width:36px;height:36px;border:3px solid #fff;background:#000;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;transition:border-color .15s;}
+.icobtn:hover{border-color:var(--ut-yellow);}
+.content{flex:1;overflow-y:auto;padding:28px 32px;}
+.page-header{margin-bottom:26px;padding-bottom:18px;border-bottom:3px solid #fff;animation:fadeUp .4s ease both;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:14px;}
+.page-header-left h2{font-family:var(--font-pixel);font-size:11px;color:var(--ut-yellow);text-shadow:0 0 10px rgba(255,255,0,.3);margin-bottom:6px;}
+.page-header-left p{font-size:18px;color:var(--muted);}
+
+/* ── FILTERS ── */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;animation:fadeUp .4s ease .05s both;}
+.chip{font-family:var(--font-main);font-size:16px;padding:5px 12px;border:2px solid #333;color:#666;background:#000;cursor:pointer;transition:all .15s;}
+.chip.active,.chip:hover{border-color:var(--ut-yellow);color:var(--ut-yellow);background:rgba(255,255,0,.06);}
+
+/* ── STATS ROW ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:26px;animation:fadeUp .4s ease .08s both;}
+.stat-card{border:3px solid #333;background:#000;padding:16px;text-align:center;transition:border-color .15s;}
+.stat-card:hover{border-color:var(--ut-yellow);box-shadow:0 0 10px rgba(255,255,0,.2);}
+.stat-val{font-family:var(--font-pixel);font-size:13px;color:var(--ut-cyan);margin-bottom:5px;}
+.stat-label{font-family:var(--font-pixel);font-size:8px;color:var(--muted);letter-spacing:.3px;}
+
+/* ── SECTION DIVIDER ── */
+.section-divider{display:flex;align-items:center;gap:12px;margin:20px 0 16px;}
+.section-divider-label{font-family:var(--font-pixel);font-size:9px;letter-spacing:.3px;color:var(--subtle);}
+.section-divider-line{flex:1;height:2px;background:var(--rule);}
+
+/* ── FEATURED TESTIMONIAL ── */
+.featured-testi{border:3px solid var(--ut-yellow);background:#000;padding:26px;margin-bottom:22px;position:relative;box-shadow:6px 6px 0 rgba(255,255,0,.2);animation:fadeUp .5s ease .1s both;}
+.featured-testi::before{content:'★ FEATURED';font-family:var(--font-pixel);font-size:8px;color:#000;background:var(--ut-yellow);padding:3px 8px;position:absolute;top:-2px;left:20px;transform:translateY(-50%);}
+.featured-quote{font-size:22px;line-height:1.7;color:#fff;margin-bottom:16px;}
+.featured-author{display:flex;align-items:center;gap:14px;}
+.author-av{width:42px;height:42px;border:3px solid var(--ut-yellow);display:flex;align-items:center;justify-content:center;font-family:var(--font-pixel);font-size:10px;color:var(--ut-cyan);background:var(--mid);flex-shrink:0;}
+.author-name{font-family:var(--font-pixel);font-size:9px;color:var(--ut-yellow);}
+.author-role{font-size:16px;color:var(--muted);margin-top:3px;}
+.star-row{display:flex;gap:3px;margin-top:5px;}
+.star{color:var(--ut-yellow);font-size:16px;}
+.star.empty{color:#333;}
+
+/* ── MASONRY GRID ── */
+.testi-grid{columns:2;gap:14px;margin-bottom:24px;}
+.testi-card{break-inside:avoid;border:3px solid #333;background:#000;padding:20px;margin-bottom:14px;transition:all .2s;animation:fadeUp .5s ease both;display:inline-block;width:100%;}
+.testi-card:hover{border-color:var(--ut-yellow);box-shadow:0 0 10px rgba(255,255,0,.2);}
+.testi-card.hidden{display:none;}
+.testi-quote{font-size:19px;color:#e0e0e0;line-height:1.7;margin-bottom:14px;}
+.testi-footer{display:flex;align-items:center;gap:10px;}
+.testi-av{width:34px;height:34px;border:2px solid #444;display:flex;align-items:center;justify-content:center;font-family:var(--font-pixel);font-size:8px;color:var(--ut-cyan);background:var(--mid);flex-shrink:0;transition:border-color .15s;}
+.testi-card:hover .testi-av{border-color:var(--ut-yellow);}
+.testi-name{font-family:var(--font-pixel);font-size:8px;color:#fff;margin-bottom:2px;}
+.testi-meta{font-size:15px;color:var(--muted);}
+.testi-stars{display:flex;gap:2px;margin-top:2px;}
+.testi-star{color:var(--ut-yellow);font-size:14px;}
+.testi-star.empty{color:#333;}
+.testi-tag{font-family:var(--font-pixel);font-size:7px;padding:2px 6px;border:2px solid;margin-left:auto;align-self:flex-start;flex-shrink:0;}
+.testi-tag.voter{border-color:var(--ut-cyan);color:var(--ut-cyan);}
+.testi-tag.organizer{border-color:var(--ut-yellow);color:var(--ut-yellow);}
+.testi-tag.admin{border-color:#ff4444;color:#ff4444;}
+.testi-tag.student{border-color:var(--ut-green);color:var(--ut-green);}
+.testi-tag.org{border-color:#a0a0ff;color:#a0a0ff);}
+.testi-verified{font-size:14px;color:var(--ut-yellow);margin-left:4px;}
+.like-btn{background:transparent;border:2px solid #333;padding:5px 10px;font-size:15px;color:var(--muted);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px;margin-left:auto;}
+.like-btn:hover,.like-btn.liked{border-color:#ff4444;color:#ff4444;}
+.like-btn.liked .heart-ico{animation:heartbeat .5s ease;}
+
+/* ── WRITE REVIEW CTA ── */
+.write-cta{border:3px dashed #444;background:#000;padding:22px;text-align:center;margin-bottom:24px;transition:all .2s;cursor:pointer;animation:fadeUp .4s ease .15s both;}
+.write-cta:hover{border-color:var(--ut-yellow);background:rgba(255,255,0,.03);}
+.write-cta-icon{font-size:28px;margin-bottom:8px;}
+.write-cta-title{font-family:var(--font-pixel);font-size:9px;color:var(--ut-yellow);margin-bottom:6px;}
+.write-cta-sub{font-size:17px;color:var(--muted);}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;align-items:center;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.mbox{background:#000;border:4px solid #fff;box-shadow:6px 6px 0 #fff;padding:26px;width:500px;max-width:90vw;max-height:80vh;overflow-y:auto;animation:popIn .3s ease both;}
+.mtitle{font-family:var(--font-pixel);font-size:11px;color:var(--ut-yellow);margin-bottom:18px;}
+.mrow{border:3px solid #333;background:#000;padding:14px;margin-bottom:12px;}
+.form-group{margin-bottom:16px;}
+.form-label{display:block;font-family:var(--font-pixel);font-size:9px;color:var(--subtle);margin-bottom:7px;letter-spacing:.6px;}
+.form-input{width:100%;background:var(--ink);border:3px solid #fff;padding:10px 12px;font-family:var(--font-main);font-size:19px;color:var(--white);outline:none;transition:all .2s;}
+.form-input:focus{border-color:var(--ut-yellow);box-shadow:0 0 8px rgba(255,255,0,.3);}
+.form-input::placeholder{color:var(--muted);}
+.form-textarea{resize:vertical;min-height:90px;line-height:1.6;}
+.star-picker{display:flex;gap:8px;margin-bottom:4px;}
+.star-pick{font-size:24px;color:#333;cursor:pointer;transition:color .1s;}
+.star-pick.on{color:var(--ut-yellow);}
+.mbtns{display:flex;gap:10px;margin-top:18px;}
+.mconfirm{flex:1;background:#fff;color:#000;border:3px solid #fff;padding:12px;font-family:var(--font-pixel);font-size:9px;cursor:pointer;transition:all .2s;}
+.mconfirm:hover{background:var(--ut-yellow);border-color:var(--ut-yellow);}
+.mcancel{flex:1;background:#000;color:#aaa;border:3px solid #444;padding:12px;font-family:var(--font-pixel);font-size:9px;cursor:pointer;transition:all .2s;}
+.mcancel:hover{border-color:#fff;color:#fff;}
+
+/* ── LOAD MORE ── */
+.load-more-btn{display:block;width:100%;background:transparent;border:3px solid #444;color:#666;padding:14px;font-family:var(--font-pixel);font-size:9px;cursor:pointer;transition:all .2s;margin-bottom:24px;}
+.load-more-btn:hover{border-color:#fff;color:#fff;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;right:24px;background:#000;border:4px solid var(--ut-yellow);color:var(--ut-yellow);box-shadow:4px 4px 0 var(--ut-yellow);font-size:20px;padding:12px 20px;z-index:10000;display:none;font-family:var(--font-main);}
+.toast.show{display:block;animation:toast-in .3s ease both;}
+</style>
+</head>
+<body>
+
+<div class="page">
+  <!-- SIDEBAR -->
+  <nav class="sb">
+    <div class="sb-logo">
+      <div class="sb-li">❤</div>
+      <span class="sb-ln">SkibiVote</span>
+    </div>
+    <div class="sb-user">
+      <div class="sb-av">SK</div>
+      <div>
+        <div class="sb-un">skibiuser</div>
+        <div class="sb-ur">@skibi#0042</div>
+      </div>
+    </div>
+    <div class="sb-nav">
+      <div class="sb-sec">NAVIGATE</div>
+      <a class="sb-it" href="#"><span class="sb-it-ico">🏠</span> Home</a>
+      <a class="sb-it" href="#"><span class="sb-it-ico">🗳</span> Vote</a>
+      <a class="sb-it" href="#"><span class="sb-it-ico">📊</span> Results</a>
+      <a class="sb-it" href="#"><span class="sb-it-ico">👤</span> Profile</a>
+      <a class="sb-it active" href="#"><span class="sb-it-ico">⭐</span> Testimonials <span class="sb-badge">NEW</span></a>
+      <a class="sb-it" href="#"><span class="sb-it-ico">✉</span> Contact</a>
+      <div class="sb-sec">ACCOUNT</div>
+      <a class="sb-it" href="#"><span class="sb-it-ico">⚙</span> Settings</a>
+    </div>
+    <div class="sb-foot">
+      <div class="sb-logout"><span>⎋</span> Logout</div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main-area">
+    <div class="topbar">
+      <span class="topbar-title">* TESTIMONIALS</span>
+      <div class="topbar-right">
+        <div class="icobtn">🔔</div>
+        <div class="icobtn">🔍</div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>* WHAT VOTERS SAY</h2>
+          <p>Real feedback from real election participants.</p>
+        </div>
+        <button class="mconfirm" style="padding:10px 16px;font-size:8px;" onclick="openWriteModal()">[ + Write a Review ]</button>
+      </div>
+
+      <!-- STATS -->
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-val">4.9</div><div class="stat-label">AVG RATING</div></div>
+        <div class="stat-card"><div class="stat-val">2,841</div><div class="stat-label">REVIEWS</div></div>
+        <div class="stat-card"><div class="stat-val">98%</div><div class="stat-label">RECOMMEND</div></div>
+        <div class="stat-card"><div class="stat-val">147</div><div class="stat-label">ELECTIONS HELD</div></div>
+      </div>
+
+      <!-- FILTERS -->
+      <div class="filter-bar">
+        <span class="chip active" onclick="filter(this,'all')">All Reviews</span>
+        <span class="chip" onclick="filter(this,'voter')">👤 Voters</span>
+        <span class="chip" onclick="filter(this,'organizer')">🏛 Organizers</span>
+        <span class="chip" onclick="filter(this,'student')">🎓 Students</span>
+        <span class="chip" onclick="filter(this,'admin')">⚙ Admins</span>
+        <span class="chip" onclick="filter(this,'5')">★★★★★ 5-star</span>
+      </div>
+
+      <!-- FEATURED -->
+      <div class="featured-testi">
+        <div class="featured-quote">"SkibiVote completely transformed how our student council runs elections. We went from paper ballots counted by hand to a live results dashboard — and voter turnout jumped from 40% to 91% in one semester."</div>
+        <div class="featured-author">
+          <div class="author-av">CM</div>
+          <div>
+            <div class="author-name">CARLA MENDOZA ✓</div>
+            <div class="author-role">Student Council Adviser — UP Diliman</div>
+            <div class="star-row">
+              <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WRITE CTA -->
+      <div class="write-cta" onclick="openWriteModal()">
+        <div class="write-cta-icon">✍️</div>
+        <div class="write-cta-title">SHARE YOUR EXPERIENCE</div>
+        <div class="write-cta-sub">Voted or organized? Tell the community what you think.</div>
+      </div>
+
+      <!-- DIVIDER -->
+      <div class="section-divider">
+        <span class="section-divider-label">ALL REVIEWS</span>
+        <div class="section-divider-line"></div>
+      </div>
+
+      <!-- GRID -->
+      <div class="testi-grid" id="testiGrid"></div>
+      <button class="load-more-btn" id="loadMoreBtn" onclick="loadMore()">[ LOAD MORE REVIEWS ]</button>
+    </div>
+  </div>
+</div>
+
+<!-- WRITE MODAL -->
+<div class="modal-overlay" id="writeModal">
+  <div class="mbox">
+    <div class="mtitle">* WRITE YOUR REVIEW</div>
+    <div class="form-group">
+      <label class="form-label">YOUR RATING</label>
+      <div class="star-picker" id="starPicker">
+        <span class="star-pick" onclick="setStars(1)">★</span>
+        <span class="star-pick" onclick="setStars(2)">★</span>
+        <span class="star-pick" onclick="setStars(3)">★</span>
+        <span class="star-pick" onclick="setStars(4)">★</span>
+        <span class="star-pick" onclick="setStars(5)">★</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">YOUR NAME</label>
+      <input id="rName" class="form-input" type="text" placeholder="Display name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">ROLE</label>
+      <select id="rRole" class="form-input">
+        <option value="voter">Voter</option>
+        <option value="organizer">Election Organizer</option>
+        <option value="student">Student</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">YOUR REVIEW</label>
+      <textarea id="rText" class="form-input form-textarea" placeholder="Share your experience with SkibiVote…"></textarea>
+    </div>
+    <div class="mbtns">
+      <button class="mcancel" onclick="closeWriteModal()">[ Cancel ]</button>
+      <button class="mconfirm" onclick="submitReview()">[ Submit Review ]</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toastEl"><span id="toastMsg"></span></div>
+
+<script>
+var selectedStars = 0;
+var currentFilter = 'all';
+
+var seedData = [
+  {name:'Reyna Santos',initials:'RS',role:'organizer',tag:'organizer',rating:5,text:'Our barangay election was handled flawlessly. Candidates were entered in minutes, live results came in instantly. The community trusted the process because everything was transparent.',org:'Brgy. Mabini',likes:84},
+  {name:'Mark Flores',initials:'MF',role:'voter',tag:'voter',rating:5,text:'Super convenient! I voted from my phone in under 2 minutes. No long lines, no confusing paper ballots. This is how elections should be.',org:'Pasig City',likes:62},
+  {name:'Aileen Ramos',initials:'AR',role:'student',tag:'student',rating:5,text:'Our org used this for SSG elections and it was a total vibe. The retro pixel design had everyone posting screenshots. Voter participation was the highest ever.',org:'DLSU Manila',likes:57},
+  {name:'Joshua Tan',initials:'JT',role:'admin',tag:'admin',rating:5,text:'The poll builder is incredibly flexible. We ran a multi-position election with 30+ candidates and the system never lagged. Results exported cleanly too.',org:'Private Company',likes:41},
+  {name:'Liza Mercado',initials:'LM',role:'voter',tag:'voter',rating:4,text:'Great experience overall. Wish there was an app version but the mobile site works well. Results page is very clear and satisfying to watch update in real time.',org:'Quezon City',likes:38},
+  {name:'Bong Castillo',initials:'BC',role:'organizer',tag:'organizer',rating:5,text:'Set up a community poll in 10 minutes. Shared the link and got 200+ responses overnight. The category tags help people find relevant elections easily.',org:'Makati',likes:33},
+  {name:'Trisha Villanueva',initials:'TV',role:'student',tag:'student',rating:5,text:'SkibiVote gave our USC the legitimacy it needed. Digital voting records, transparent counts — no more drama about paper ballot tampering.',org:'Ateneo de Manila',likes:29},
+  {name:'Paolo Reyes',initials:'PR',role:'voter',tag:'voter',rating:5,text:'Voted in my first election ever through this. The UI is so intuitive that I never needed instructions. Felt proud to participate.',org:'Muntinlupa',likes:22},
+  {name:'Grace Ocampo',initials:'GO',role:'organizer',tag:'organizer',rating:4,text:'Works brilliantly for school elections. Only feedback is a reminder notification feature would push turnout even higher. But overall, excellent platform.',org:'St. Scholastica',likes:17},
+  {name:'Dom Aquino',initials:'DA',role:'admin',tag:'admin',rating:5,text:'The backend is reliable and fast. We\'ve processed over 5,000 votes in a single session with zero downtime. Extremely impressed.',org:'Tech Team',likes:45},
+];
+
+var allCards = [...seedData];
+var visibleCount = 6;
+
+function renderCards(){
+  var grid = document.getElementById('testiGrid');
+  var filtered = currentFilter === 'all' ? allCards : (currentFilter === '5' ? allCards.filter(function(t){return t.rating===5;}) : allCards.filter(function(t){return t.role===currentFilter;}));
+  grid.innerHTML = '';
+  var toShow = filtered.slice(0, visibleCount);
+  toShow.forEach(function(t, i){
+    var stars = '';
+    for(var s=1;s<=5;s++) stars += '<span class="testi-star'+(s<=t.rating?'':' empty')+'">★</span>';
+    var card = document.createElement('div');
+    card.className = 'testi-card';
+    card.style.animationDelay = (i*0.05)+'s';
+    card.innerHTML =
+      '<div class="testi-quote">"'+t.text+'"</div>'+
+      '<div class="testi-footer">'+
+        '<div class="testi-av">'+t.initials+'</div>'+
+        '<div>'+
+          '<div class="testi-name">'+t.name+(t.rating===5?' <span style="color:var(--ut-yellow);font-size:12px;">✓</span>':'')+'</div>'+
+          '<div class="testi-meta">'+t.org+'</div>'+
+          '<div class="testi-stars">'+stars+'</div>'+
+        '</div>'+
+        '<span class="testi-tag '+t.tag+'">'+t.tag.toUpperCase()+'</span>'+
+      '</div>'+
+      '<div style="margin-top:12px;border-top:2px solid #1a1a1a;padding-top:10px;display:flex;justify-content:flex-end;">'+
+        '<button class="like-btn" onclick="likeCard(this,'+(allCards.indexOf(t))+')"><span class="heart-ico">♥</span> '+t.likes+'</button>'+
+      '</div>';
+    grid.appendChild(card);
+  });
+  document.getElementById('loadMoreBtn').style.display = filtered.length > visibleCount ? 'block' : 'none';
+}
+
+function filter(el, type){
+  document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('active');});
+  el.classList.add('active');
+  currentFilter = type;
+  visibleCount = 6;
+  renderCards();
+}
+
+function loadMore(){
+  visibleCount += 4;
+  renderCards();
+}
+
+function likeCard(btn, idx){
+  if(btn.classList.contains('liked')) return;
+  btn.classList.add('liked');
+  allCards[idx].likes++;
+  btn.innerHTML = '<span class="heart-ico">♥</span> '+allCards[idx].likes;
+}
+
+function setStars(n){
+  selectedStars = n;
+  document.querySelectorAll('.star-pick').forEach(function(s,i){
+    s.classList.toggle('on', i < n);
+  });
+}
+
+function openWriteModal(){
+  document.getElementById('writeModal').classList.add('show');
+}
+
+function closeWriteModal(){
+  document.getElementById('writeModal').classList.remove('show');
+}
+
+function submitReview(){
+  var name = document.getElementById('rName').value.trim();
+  var role = document.getElementById('rRole').value;
+  var text = document.getElementById('rText').value.trim();
+  if(!name){ toast('Please enter your name.'); return; }
+  if(!selectedStars){ toast('Please select a rating.'); return; }
+  if(text.length < 20){ toast('Review must be at least 20 characters.'); return; }
+  var initials = name.split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();
+  allCards.unshift({name:name,initials:initials,role:role,tag:role,rating:selectedStars,text:text,org:'SkibiVote User',likes:0});
+  closeWriteModal();
+  document.getElementById('rName').value = '';
+  document.getElementById('rText').value = '';
+  document.getElementById('rRole').value = 'voter';
+  setStars(0); selectedStars = 0;
+  visibleCount = 6; currentFilter = 'all';
+  document.querySelectorAll('.chip').forEach(function(c,i){c.classList.toggle('active',i===0);});
+  renderCards();
+  toast('Review submitted! ❤');
+}
+
+function toast(msg){
+  var t = document.getElementById('toastEl');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(function(){ t.classList.remove('show'); }, 3000);
+}
+
+renderCards();
+</script>
+</body>
+</html>

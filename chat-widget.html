@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkibiVote — Live Chat</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23ffffff' d='M8 14s-6-4.5-6-8a4 4 0 0 1 6-3.46A4 4 0 0 1 14 6c0 3.5-6 8-6 8z'/%3E%3C/svg%3E") 8 14, auto !important;}
+button,a,[onclick],input,textarea{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23ffff00' d='M8 14s-6-4.5-6-8a4 4 0 0 1 6-3.46A4 4 0 0 1 14 6c0 3.5-6 8-6 8z'/%3E%3C/svg%3E") 8 14, pointer !important;}
+:root{
+  --black:#000000;--ink:#0a0a0a;--dark:#111111;--mid:#1a1a1a;--rule:#333;--muted:#888;--subtle:#666;--silver:#aaa;--off:#e0e0e0;--white:#ffffff;
+  --ut-yellow:#ffff00;--ut-cyan:#00ffff;--ut-red:#ff0000;--ut-heart:#ff4444;--ut-green:#00ff00;--ut-blue:#6060ff;
+  --font-main:'VT323',monospace;--font-pixel:'Press Start 2P',monospace;--font-mono:'Courier Prime',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;border-radius:0!important;}
+html,body{height:100%;font-family:var(--font-main);background:var(--black);color:var(--white);font-size:20px;image-rendering:pixelated;}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.15) 2px,rgba(0,0,0,.15) 4px);pointer-events:none;z-index:9999;}
+::-webkit-scrollbar{width:5px!important;background:#000!important;}::-webkit-scrollbar-thumb{background:#333!important;}
+
+@keyframes blink{0%,100%{opacity:1}49%{opacity:1}50%,99%{opacity:0}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideInLeft{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes heartbeat{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+@keyframes fabBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+
+/* ── DEMO SITE BG ── */
+.demo-bg{width:100%;height:100vh;background:#000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;position:relative;}
+.demo-logo{font-family:var(--font-pixel);font-size:14px;color:var(--ut-yellow);text-shadow:0 0 20px rgba(255,255,0,.4);}
+.demo-sub{font-size:19px;color:var(--muted);}
+.demo-hint{font-family:var(--font-pixel);font-size:8px;color:#333;margin-top:30px;animation:blink 2s step-start infinite;}
+
+/* ── FAB ── */
+.chat-fab{position:fixed;bottom:28px;right:28px;width:58px;height:58px;background:var(--ut-yellow);border:3px solid #fff;box-shadow:4px 4px 0 #fff;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;z-index:200;transition:all .2s;animation:fabBounce 2s ease infinite;}
+.chat-fab:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #fff;}
+.chat-fab .fab-badge{position:absolute;top:-6px;right:-6px;background:var(--ut-red);color:#fff;font-family:var(--font-pixel);font-size:7px;padding:2px 5px;border:2px solid #000;min-width:18px;text-align:center;}
+
+/* ── CHAT WINDOW ── */
+.chat-window{position:fixed;bottom:100px;right:28px;width:380px;height:540px;background:#000;border:4px solid #fff;box-shadow:6px 6px 0 #fff;display:flex;flex-direction:column;z-index:199;animation:fadeUp .25s ease both;}
+.chat-window.hidden{display:none;}
+
+/* ── CHAT HEADER ── */
+.chat-hdr{padding:14px 16px;border-bottom:3px solid #fff;display:flex;align-items:center;gap:12px;flex-shrink:0;background:#000;}
+.chat-hdr-av{width:36px;height:36px;border:3px solid var(--ut-yellow);display:flex;align-items:center;justify-content:center;font-family:var(--font-pixel);font-size:9px;color:#000;background:var(--ut-yellow);flex-shrink:0;}
+.chat-hdr-info{flex:1;}
+.chat-hdr-name{font-family:var(--font-pixel);font-size:9px;color:var(--ut-yellow);}
+.chat-hdr-status{font-size:15px;color:var(--ut-green);display:flex;align-items:center;gap:5px;margin-top:3px;}
+.online-dot{width:7px;height:7px;background:var(--ut-green);border-radius:50%!important;animation:pulse 1.5s ease infinite;}
+.chat-close{width:30px;height:30px;border:3px solid #444;background:#000;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;color:var(--muted);transition:all .15s;flex-shrink:0;}
+.chat-close:hover{border-color:#fff;color:#fff;}
+.chat-minimize{width:30px;height:30px;border:3px solid #444;background:#000;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;color:var(--muted);transition:all .15s;flex-shrink:0;}
+.chat-minimize:hover{border-color:#fff;color:#fff;}
+
+/* ── MESSAGES ── */
+.chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
+.msg{max-width:88%;display:flex;flex-direction:column;gap:3px;}
+.msg.user{align-self:flex-end;align-items:flex-end;animation:slideIn .25s ease both;}
+.msg.bot{align-self:flex-start;align-items:flex-start;animation:slideInLeft .25s ease both;}
+.msg-bubble{padding:10px 13px;font-size:18px;line-height:1.55;}
+.msg.user .msg-bubble{background:#fff;color:#000;border:3px solid #fff;}
+.msg.bot .msg-bubble{background:#0a0a0a;color:#fff;border:3px solid #333;}
+.msg.bot .msg-bubble.typing{color:var(--muted);}
+.msg-time{font-size:13px;color:var(--muted);}
+.msg.user .msg-time{text-align:right;}
+
+/* ── TYPING ── */
+.typing-dots{display:flex;gap:4px;align-items:center;padding:4px 0;}
+.typing-dot{width:7px;height:7px;background:var(--muted);animation:pulse 1s ease infinite;}
+.typing-dot:nth-child(2){animation-delay:.2s;}
+.typing-dot:nth-child(3){animation-delay:.4s;}
+
+/* ── QUICK REPLIES ── */
+.quick-replies{padding:0 14px 10px;display:flex;gap:7px;flex-wrap:wrap;flex-shrink:0;}
+.qr-chip{padding:5px 11px;border:2px solid #333;color:#666;background:#000;font-size:15px;font-family:var(--font-main);cursor:pointer;transition:all .15s;}
+.qr-chip:hover{border-color:var(--ut-yellow);color:var(--ut-yellow);}
+
+/* ── INPUT AREA ── */
+.chat-input-area{border-top:3px solid #fff;padding:12px 14px;display:flex;gap:9px;flex-shrink:0;background:#000;}
+.chat-input{flex:1;background:#0a0a0a;border:3px solid #fff;padding:10px 12px;font-family:var(--font-main);font-size:19px;color:#fff;outline:none;transition:border-color .2s;resize:none;max-height:80px;overflow-y:auto;line-height:1.4;}
+.chat-input:focus{border-color:var(--ut-yellow);}
+.chat-input::placeholder{color:var(--muted);}
+.chat-send{width:44px;height:44px;background:#fff;border:3px solid #fff;color:#000;font-size:18px;cursor:pointer;flex-shrink:0;transition:all .2s;display:flex;align-items:center;justify-content:center;}
+.chat-send:hover{background:var(--ut-yellow);border-color:var(--ut-yellow);box-shadow:0 0 10px rgba(255,255,0,.4);}
+.chat-send:disabled{background:#333;border-color:#444;color:#666;cursor:not-allowed;}
+
+/* ── FOOTER ── */
+.chat-footer{border-top:2px solid #1a1a1a;padding:6px 14px;font-size:14px;color:#444;text-align:center;flex-shrink:0;}
+.chat-footer span{color:#555;}
+</style>
+</head>
+<body>
+
+<!-- DEMO BACKGROUND -->
+<div class="demo-bg">
+  <div class="demo-logo">❤ SkibiVote</div>
+  <div class="demo-sub">* It's a VOTING experience.</div>
+  <div class="demo-hint">▼ CLICK THE CHAT BUTTON TO OPEN SUPPORT ▼</div>
+</div>
+
+<!-- FAB -->
+<div class="chat-fab" id="chatFab" onclick="toggleChat()">
+  💬
+  <div class="fab-badge" id="fabBadge">1</div>
+</div>
+
+<!-- CHAT WINDOW -->
+<div class="chat-window hidden" id="chatWindow">
+  <div class="chat-hdr">
+    <div class="chat-hdr-av">SV</div>
+    <div class="chat-hdr-info">
+      <div class="chat-hdr-name">SKIBIVOTE SUPPORT</div>
+      <div class="chat-hdr-status"><div class="online-dot"></div> Online — AI-powered</div>
+    </div>
+    <div class="chat-minimize" onclick="toggleChat()">—</div>
+    <div class="chat-close" onclick="closeChat()">✕</div>
+  </div>
+
+  <div class="chat-msgs" id="chatMsgs"></div>
+
+  <div class="quick-replies" id="quickReplies">
+    <div class="qr-chip" onclick="sendQuick('How do I create an election?')">Create election</div>
+    <div class="qr-chip" onclick="sendQuick('How do I vote?')">How to vote</div>
+    <div class="qr-chip" onclick="sendQuick('I found a bug')">Report bug</div>
+    <div class="qr-chip" onclick="sendQuick('Results and certificates')">Results</div>
+  </div>
+
+  <div class="chat-input-area">
+    <textarea class="chat-input" id="chatInput" placeholder="Type a message…" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    <button class="chat-send" id="sendBtn" onclick="sendMsg()">➤</button>
+  </div>
+  <div class="chat-footer">Powered by <span>Claude AI</span> · SkibiVote Support</div>
+</div>
+
+<script>
+var history = [];
+var isOpen = false;
+var isLoading = false;
+var badgeShown = true;
+
+var SYSTEM_PROMPT = "You are SkibiVote Support Bot — a helpful, friendly assistant for SkibiVote, a retro pixel-art themed online voting platform popular in the Philippines. SkibiVote allows users to create elections, polls, and votes for schools, barangays, organizations, and national contexts. Keep answers short and helpful (2-4 sentences max unless the user needs detailed steps). Use casual, friendly language. You know the platform has: election creation with multiple positions and candidates, live results, categories (national, local, barangay, school, org, survey), voting history, profiles, certificates, and a settings page. If you don't know something specific about SkibiVote, give general helpful guidance. Do not use markdown headers or bullet points — write in plain conversational sentences.";
+
+function toggleChat(){
+  isOpen = !isOpen;
+  document.getElementById('chatWindow').classList.toggle('hidden', !isOpen);
+  if(isOpen){
+    document.getElementById('fabBadge').style.display = 'none';
+    badgeShown = false;
+    if(history.length === 0) showWelcome();
+    scrollToBottom();
+  }
+}
+
+function closeChat(){
+  isOpen = false;
+  document.getElementById('chatWindow').classList.add('hidden');
+}
+
+function showWelcome(){
+  addMessage('bot', "Hey! 👋 Welcome to SkibiVote Support. I'm your AI assistant — ask me anything about voting, creating elections, results, or account help.");
+}
+
+function addMessage(role, text, id){
+  var msgs = document.getElementById('chatMsgs');
+  var div = document.createElement('div');
+  div.className = 'msg ' + role;
+  if(id) div.id = id;
+  var now = new Date();
+  var time = now.getHours()+':'+(now.getMinutes()<10?'0':'')+now.getMinutes();
+  if(role === 'bot' && text === '__typing__'){
+    div.innerHTML = '<div class="msg-bubble typing"><div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>';
+  } else {
+    div.innerHTML = '<div class="msg-bubble">'+escHtml(text)+'</div><div class="msg-time">'+time+'</div>';
+  }
+  msgs.appendChild(div);
+  scrollToBottom();
+  return div;
+}
+
+function escHtml(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function scrollToBottom(){
+  var msgs = document.getElementById('chatMsgs');
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+async function sendMsg(){
+  var inp = document.getElementById('chatInput');
+  var text = inp.value.trim();
+  if(!text || isLoading) return;
+  inp.value = '';
+  inp.style.height = '';
+  sendText(text);
+}
+
+function sendQuick(text){
+  document.getElementById('quickReplies').style.display = 'none';
+  sendText(text);
+}
+
+async function sendText(text){
+  if(isLoading) return;
+  addMessage('user', text);
+  history.push({role:'user', content:text});
+  isLoading = true;
+  document.getElementById('sendBtn').disabled = true;
+
+  var typingId = 'typing_'+Date.now();
+  addMessage('bot', '__typing__', typingId);
+
+  try {
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system: SYSTEM_PROMPT,
+        messages: history
+      })
+    });
+    var data = await res.json();
+    var reply = '';
+    if(data.content && data.content.length){
+      data.content.forEach(function(block){ if(block.type==='text') reply += block.text; });
+    } else {
+      reply = "Sorry, I couldn't reach the support server right now. Please try again or email support@skibivote.ph.";
+    }
+    var typingEl = document.getElementById(typingId);
+    if(typingEl) typingEl.remove();
+    history.push({role:'assistant', content:reply});
+    addMessage('bot', reply);
+  } catch(e){
+    var typingEl = document.getElementById(typingId);
+    if(typingEl) typingEl.remove();
+    addMessage('bot', "Connection error. Please check your network and try again.");
+  }
+
+  isLoading = false;
+  document.getElementById('sendBtn').disabled = false;
+  scrollToBottom();
+}
+
+function handleKey(e){
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMsg(); }
+}
+
+function autoResize(el){
+  el.style.height = '';
+  el.style.height = Math.min(el.scrollHeight, 80)+'px';
+}
+</script>
+</body>
+</html>
